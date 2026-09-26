@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPT Suite — Installers</title>
+<style>
+  :root {
+    --bg:       #0b0d10;
+    --bg-card:  #14171c;
+    --bg-code:  #0f1216;
+    --border:   #262b33;
+    --fg:       #e6e8eb;
+    --fg-dim:   #8b929c;
+    --accent:   #4f8cff;
+    --mono:     ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans:     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg); color: var(--fg);
+    font-family: var(--sans); line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 64px 24px 96px; }
+  header { margin-bottom: 48px; }
+  h1 {
+    font-size: 2rem; font-weight: 650;
+    letter-spacing: -0.02em; margin: 0 0 12px;
+  }
+  .lede {
+    color: var(--fg-dim); font-size: 1.05rem;
+    margin: 0; max-width: 640px;
+  }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    transition: border-color 0.15s ease;
+  }
+  .card:hover { border-color: #38404b; }
+  .card-head {
+    display: flex; align-items: baseline;
+    justify-content: space-between; gap: 12px;
+    flex-wrap: wrap; margin-bottom: 6px;
+  }
+  .card h2 {
+    font-size: 1.15rem; font-weight: 600;
+    margin: 0; letter-spacing: -0.01em;
+  }
+  .tag {
+    font-family: var(--mono); font-size: 0.72rem;
+    color: var(--fg-dim); border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 999px;
+  }
+  .card p.desc {
+    color: var(--fg-dim); font-size: 0.94rem;
+    margin: 4px 0 18px;
+  }
+  .install-row {
+    display: flex; align-items: stretch; gap: 8px;
+    margin-bottom: 12px;
+  }
+  .code-block {
+    flex: 1; min-width: 0;
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: var(--mono); font-size: 0.82rem;
+    color: #cbd5e1;
+    overflow-x: auto; white-space: nowrap;
+    scrollbar-width: thin;
+  }
+  .code-block::-webkit-scrollbar { height: 6px; }
+  .code-block::-webkit-scrollbar-thumb {
+    background: #2a313a; border-radius: 3px;
+  }
+  .copy-btn {
+    flex: 0 0 auto;
+    background: #1c222a; color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 0 16px;
+    font-size: 0.85rem; font-family: var(--sans); font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .copy-btn:hover { background: #232a34; border-color: #38404b; }
+  .copy-btn.ok { background: #14361f; border-color: #1e5a34; color: #86efac; }
+  .copy-btn:active { transform: translateY(1px); }
+  details.adv {
+    margin-top: 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+  details.adv > summary {
+    cursor: pointer; color: var(--fg-dim);
+    font-size: 0.85rem; list-style: none; user-select: none;
+  }
+  details.adv > summary::-webkit-details-marker { display: none; }
+  details.adv > summary::before { content: "▸ "; color: var(--fg-dim); }
+  details.adv[open] > summary::before { content: "▾ "; }
+  details.adv .adv-body {
+    margin-top: 12px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .field { display: flex; align-items: center; gap: 10px; }
+  .field label {
+    font-size: 0.82rem; color: var(--fg-dim);
+    min-width: 90px; font-family: var(--mono);
+  }
+  .field input {
+    flex: 1;
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 6px; color: var(--fg);
+    font-family: var(--mono); font-size: 0.82rem;
+    padding: 7px 10px; outline: none;
+  }
+  .field input:focus { border-color: var(--accent); }
+  .hint {
+    font-size: 0.78rem; color: var(--fg-dim);
+    font-family: var(--mono);
+  }
+  footer {
+    margin-top: 56px; padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--fg-dim); font-size: 0.85rem;
+  }
+  .req {
+    font-size: 0.78rem; color: var(--fg-dim);
+    margin-top: 8px; font-family: var(--mono);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>GPT Suite</h1>
+    <p class="lede">
+      One-line installers for LocalGPT, PrivateGPT, and WebGPT.
+      Linux x86_64, no dependencies beyond <code>curl</code>.
+    </p>
+  </header>
+
+  <div class="grid">
+
+    <!-- ==================== LocalGPT ==================== -->
+    <div class="card">
+      <div class="card-head">
+        <h2>LocalGPT</h2>
+        <span class="tag">offline</span>
+      </div>
+      <p class="desc">
+        Fully offline assistant. Runs entirely on your machine — no API keys, no network calls.
+      </p>
+      <div class="install-row">
+        <div class="code-block" id="cmd-localgpt">curl -fsSL https://raw.githubusercontent.com/Seaman6969/LocalGPT_unipvc_estg_ei_is_2026_2027/main/install.sh | bash</div>
+        <button class="copy-btn" data-target="cmd-localgpt" type="button">Copy</button>
+      </div>
+      <details class="adv">
+        <summary>Advanced</summary>
+        <div class="adv-body">
+          <div class="field">
+            <label for="ver-localgpt">version</label>
+            <input id="ver-localgpt" type="text" value="latest"
+                   placeholder="latest" autocomplete="off" spellcheck="false"
+                   data-repo="Seaman6969/LocalGPT_unipvc_estg_ei_is_2026_2027">
+          </div>
+          <div class="hint">
+            Pin a Git tag, e.g. <code>v0.1.0</code>. Leave as <code>latest</code> for the newest release.
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- ==================== PrivateGPT ==================== -->
+    <div class="card">
+      <div class="card-head">
+        <h2>PrivateGPT</h2>
+        <span class="tag">rag</span>
+      </div>
+      <p class="desc">
+        Local RAG over your own documents. Ingests files and answers questions with citations.
+      </p>
+      <div class="install-row">
+        <div class="code-block" id="cmd-privategpt">curl -fsSL https://raw.githubusercontent.com/Seaman6969/PrivateGPT_unipvc_estg_ei_is_2026_2027/main/install.sh | bash</div>
+        <button class="copy-btn" data-target="cmd-privategpt" type="button">Copy</button>
+      </div>
+      <details class="adv">
+        <summary>Advanced</summary>
+        <div class="adv-body">
+          <div class="field">
+            <label for="ver-privategpt">version</label>
+            <input id="ver-privategpt" type="text" value="latest"
+                   placeholder="latest" autocomplete="off" spellcheck="false"
+                   data-repo="Seaman6969/PrivateGPT_unipvc_estg_ei_is_2026_2027">
+          </div>
+          <div class="hint">
+            Pin a Git tag, e.g. <code>v0.1.0</code>. Leave as <code>latest</code> for the newest release.
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- ==================== WebGPT ==================== -->
+    <div class="card">
+      <div class="card-head">
+        <h2>WebGPT</h2>
+        <span class="tag">network</span>
+      </div>
+      <p class="desc">
+        Browser-integrated assistant. Connects to remote models with a local-first UI.
+      </p>
+      <div class="install-row">
+        <div class="code-block" id="cmd-webgpt">curl -fsSL https://raw.githubusercontent.com/Seaman6969/WebGPT_unipvc_estg_ei_is_2026_2027/main/install.sh | bash</div>
+        <button class="copy-btn" data-target="cmd-webgpt" type="button">Copy</button>
+      </div>
+      <details class="adv">
+        <summary>Advanced</summary>
+        <div class="adv-body">
+          <div class="field">
+            <label for="ver-webgpt">version</label>
+            <input id="ver-webgpt" type="text" value="latest"
+                   placeholder="latest" autocomplete="off" spellcheck="false"
+                   data-repo="Seaman6969/WebGPT_unipvc_estg_ei_is_2026_2027">
+          </div>
+          <div class="hint">
+            Pin a Git tag, e.g. <code>v0.1.0</code>. Leave as <code>latest</code> for the newest release.
+          </div>
+        </div>
+      </details>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>
+      Each installer downloads a signed AppImage from GitHub Releases,
+      installs it to <code>~/.local/bin</code>, ensures <code>PATH</code>,
+      and launches the app. Pin a version using the advanced panel.
+    </p>
+    <p class="req">
+      Requires: Linux x86_64 &middot; glibc &ge; 2.31 &middot; curl
+    </p>
+  </footer>
+
+</div>
+
+<script>
+/* Copy buttons */
+document.querySelectorAll(".copy-btn").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    var el = document.getElementById(btn.dataset.target);
+    if (!el) return;
+    var text = el.textContent;
+
+    function done() {
+      var prev = btn.textContent;
+      btn.textContent = "Copied";
+      btn.classList.add("ok");
+      setTimeout(function () {
+        btn.textContent = prev;
+        btn.classList.remove("ok");
+      }, 1400);
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, function () {
+        fallbackCopy(text); done();
+      });
+    } else {
+      fallbackCopy(text); done();
+    }
+  });
+});
+
+function fallbackCopy(text) {
+  var ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
+/* Version inputs — rewrite the command live */
+document.querySelectorAll(".field input[data-repo]").forEach(function (input) {
+  var id = input.id.replace(/^ver-/, "cmd-");
+  var el = document.getElementById(id);
+  if (!el) return;
+
+  input.addEventListener("input", function () {
+    var repo = input.dataset.repo;
+    var v = input.value.trim();
+    var base = "https://raw.githubusercontent.com/" + repo + "/main/install.sh";
+    if (!v || v === "latest") {
+      el.textContent = "curl -fsSL " + base + " | bash";
+    } else {
+      el.textContent = "PRIVATEGPT_VERSION=" + v + " curl -fsSL " + base + " | bash";
+    }
+  });
+});
+</script>
+</body>
+</html>
